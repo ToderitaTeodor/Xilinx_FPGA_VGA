@@ -28,7 +28,8 @@ reg [$clog2(H_TOTAL)-1:0] h_counter;
 reg [$clog2(V_TOTAL)-1:0] v_counter;
 
 // End of line indicator
-wire enable = (h_counter == H_TOTAL - 1);
+wire h_last = (h_counter == H_TOTAL - 1);
+wire v_last = (v_counter == V_TOTAL - 1);
 
 // Active low sync pulse generation
 assign hsync_o = ~((h_counter >= (H_ACTIVE + H_F_PORCH)) &
@@ -47,24 +48,16 @@ assign blue_o  = (video_active) ? 4'h0 : 4'h0;
 
 // Horizontal counter logic
 always @(posedge clk_i or negedge rst_ni) begin
-    if(!rst_ni) 
-        h_counter <= 0; 
-    else if(h_counter == H_TOTAL - 1)
-        h_counter <= 0;
-    else
-        h_counter <= h_counter + 1;
+if(!rst_ni) h_counter <= 0; else
+if(h_last)  h_counter <= 0; else
+            h_counter <= h_counter + 1;
 end
 
 // Vertical counter logic
 always @(posedge clk_i or negedge rst_ni) begin
-    if(!rst_ni)
-        v_counter <= 0;
-    else if(enable) begin
-        if(v_counter == V_TOTAL - 1)
-            v_counter <= 0;
-        else
-            v_counter <= v_counter + 1;
-    end
+if(!rst_ni)          v_counter <= 0; else 
+if(h_last && v_last) v_counter <= 0; else
+if(h_last)           v_counter <= v_counter + 1;
 end
 
 endmodule
