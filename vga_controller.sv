@@ -11,6 +11,7 @@ module vga_controller #(
 )(    
     input              clk_i  ,
     input              rst_ni ,
+    input logic [2:0]  sw     ,
 
     output logic       hsync_o,
     output logic       vsync_o,
@@ -40,6 +41,8 @@ logic       dir_y;
 reg [$clog2(H_TOTAL)-1:0] h_counter;
 reg [$clog2(V_TOTAL)-1:0] v_counter;
 
+logic [1:0] speed_step = (sw[0]) ? 3 : 1;
+
 // Draw a square 
 logic is_square = (h_counter >= obj_x - SQUARE_SIZE & h_counter < obj_x + SQUARE_SIZE & 
                   v_counter >= obj_y - SQUARE_SIZE & v_counter < obj_y + SQUARE_SIZE);
@@ -59,35 +62,35 @@ assign vsync_o = ~((v_counter >= V_SYNC_START) &
 wire video_active = (h_counter < H_ACTIVE) & (v_counter < V_ACTIVE) & rst_ni;
 
 // Color output logic
-assign red_o   = (video_active) ? 4'hF : 4'h0;
-assign green_o = (video_active && is_square) ? 4'hF : 4'h0;
-assign blue_o  = (video_active) ? 4'h0 : 4'h0;
+assign red_o   = (!video_active) ? 4'h0 : (is_square ? (sw[1] ? 4'h0 : 4'hF) : 4'hF);
+assign green_o = (!video_active) ? 4'h0 : (is_square ? 4'hF : 4'h0);
+assign blue_o  = (!video_active) ? 4'h0 : (is_square ? (sw[1] ? 4'hF : 4'h0) : 4'h0);
 
 
 // Object X position logic
 always_ff @(posedge clk_i or negedge rst_ni) begin
 if(!rst_ni)          obj_x <= H_ACTIVE / 2; else
-if(h_last && v_last) obj_x <= (!dir_x) ? obj_x + 1 : obj_x - 1;
+if(h_last && v_last) obj_x <= (!dir_x) ? obj_x + speed_step : obj_x - speed_step;
 end
 
 // Object Y position logic
 always_ff @(posedge clk_i or negedge rst_ni) begin
 if(!rst_ni)          obj_y <= V_ACTIVE / 2; else
-if(h_last && v_last) obj_y <= (!dir_y) ? obj_y + 1 : obj_y - 1;
+if(h_last && v_last) obj_y <= (!dir_y) ? obj_y + speed_step : obj_y - speed_step;
 end
 
-// X direction bounce logic
+// X direction bounce logic (acoperă și săriturile de 3 pixeli)
 always_ff @(posedge clk_i or negedge rst_ni) begin
-if(!rst_ni)                           dir_x <= 0; else
-if(obj_x + SQUARE_SIZE >= H_ACTIVE-1) dir_x <= 1; else
-if(obj_x <= SQUARE_SIZE)              dir_x <= 0;
+if(!rst_ni)                                      dir_x <= 0; else
+if(obj_x + SQUARE_SIZE + speed_step >= H_ACTIVE) dir_x <= 1; else
+if(obj_x <= SQUARE_SIZE + speed_step)            dir_x <= 0;
 end
 
-// Y direction bounce logic
+// Y direction bounce logic 
 always_ff @(posedge clk_i or negedge rst_ni) begin
-if(!rst_ni)                           dir_y <= 0; else
-if(obj_y + SQUARE_SIZE >= V_ACTIVE-1) dir_y <= 1; else
-if(obj_y <= SQUARE_SIZE)              dir_y <= 0;
+if(!rst_ni)                                      dir_y <= 0; else
+if(obj_y + SQUARE_SIZE + speed_step >= V_ACTIVE) dir_y <= 1; else
+if(obj_y <= SQUARE_SIZE + speed_step)            dir_y <= 0;
 end
 
 

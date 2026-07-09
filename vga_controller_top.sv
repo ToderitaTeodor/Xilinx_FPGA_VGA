@@ -12,6 +12,7 @@ module vga_controller_top #(
     input  logic       sys_clock,
     input  logic       reset    ,
 
+    input  logic [1:0] sw       ,
     output logic       Hsync    ,
     output logic       Vsync    ,
 
@@ -36,6 +37,8 @@ vga_controller #(
 ) vga_controller_inst (    
     .clk_i  (vga_clk),
     .rst_ni (rst_n),
+
+    .sw     (sw),
 
     .hsync_o(Hsync),
     .vsync_o(Vsync),
