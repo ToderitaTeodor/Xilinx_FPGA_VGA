@@ -29,9 +29,13 @@ localparam H_SYNC_END   = H_ACTIVE + H_F_PORCH + H_SYNC;
 localparam V_SYNC_START = V_ACTIVE + V_F_PORCH;
 localparam V_SYNC_END   = V_ACTIVE + V_F_PORCH + V_SYNC;
 
+
 // Internal counters
 reg [$clog2(H_TOTAL)-1:0] h_counter;
 reg [$clog2(V_TOTAL)-1:0] v_counter;
+
+// Draw a square in the middle of the screen
+logic is_square = (h_counter >= 250 & h_counter < 390 & v_counter >= 170 & v_counter < 310);
 
 // End of line indicator
 wire h_last = (h_counter == H_TOTAL - 1);
@@ -49,8 +53,10 @@ wire video_active = (h_counter < H_ACTIVE) & (v_counter < V_ACTIVE) & rst_ni;
 
 // Color output logic
 assign red_o   = (video_active) ? 4'hF : 4'h0;
-assign green_o = (video_active) ? 4'h0 : 4'h0;
+assign green_o = (video_active && is_square) ? 4'hF : 4'h0;
 assign blue_o  = (video_active) ? 4'h0 : 4'h0;
+
+
 
 // Horizontal counter logic
 always @(posedge clk_i or negedge rst_ni) begin
