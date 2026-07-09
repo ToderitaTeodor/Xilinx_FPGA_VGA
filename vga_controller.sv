@@ -41,6 +41,7 @@ logic       dir_y;
 reg [$clog2(H_TOTAL)-1:0] h_counter;
 reg [$clog2(V_TOTAL)-1:0] v_counter;
 
+// Change animation speed
 logic [1:0] speed_step = (sw[0]) ? 3 : 1;
 
 // Draw a square 
@@ -79,7 +80,7 @@ if(!rst_ni)          obj_y <= V_ACTIVE / 2; else
 if(h_last && v_last) obj_y <= (!dir_y) ? obj_y + speed_step : obj_y - speed_step;
 end
 
-// X direction bounce logic (acoperă și săriturile de 3 pixeli)
+// X direction bounce logic
 always_ff @(posedge clk_i or negedge rst_ni) begin
 if(!rst_ni)                                      dir_x <= 0; else
 if(obj_x + SQUARE_SIZE + speed_step >= H_ACTIVE) dir_x <= 1; else
