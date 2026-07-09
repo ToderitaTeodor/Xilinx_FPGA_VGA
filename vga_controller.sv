@@ -1,27 +1,33 @@
-module vga_controller (
-    input        clk_i  ,
-    input        rst_ni ,
+module vga_controller #(
+    parameter H_ACTIVE  = 640,
+    parameter H_F_PORCH = 16 ,
+    parameter H_SYNC    = 96 ,
+    parameter H_B_PORCH = 48 ,
 
-    output       hsync_o,
-    output       vsync_o,
+    parameter V_ACTIVE  = 480,
+    parameter V_F_PORCH = 10 ,
+    parameter V_SYNC    = 2  ,
+    parameter V_B_PORCH = 33 
+)(    
+    input              clk_i  ,
+    input              rst_ni ,
 
-    output [3:0] red_o  ,
-    output [3:0] green_o,
-    output [3:0] blue_o 
+    output logic       hsync_o,
+    output logic       vsync_o,
+
+    output logic [3:0] red_o  ,
+    output logic [3:0] green_o,
+    output logic [3:0] blue_o 
 );
 
-// VGA 640x480 timing parameters
-localparam H_ACTIVE  = 640;
-localparam H_F_PORCH = 16;
-localparam H_SYNC    = 96;
-localparam H_B_PORCH = 48;
-localparam H_TOTAL   = H_ACTIVE + H_F_PORCH + H_SYNC + H_B_PORCH;
+localparam H_TOTAL    = H_ACTIVE + H_F_PORCH + H_SYNC + H_B_PORCH;
+localparam V_TOTAL    = V_ACTIVE + V_F_PORCH + V_SYNC + V_B_PORCH;
 
-localparam V_ACTIVE  = 480;
-localparam V_F_PORCH = 10;
-localparam V_SYNC    = 2;
-localparam V_B_PORCH = 33;
-localparam V_TOTAL   = V_ACTIVE + V_F_PORCH + V_SYNC + V_B_PORCH;
+localparam H_SYNC_START = H_ACTIVE + H_F_PORCH;
+localparam H_SYNC_END   = H_ACTIVE + H_F_PORCH + H_SYNC;
+
+localparam V_SYNC_START = V_ACTIVE + V_F_PORCH;
+localparam V_SYNC_END   = V_ACTIVE + V_F_PORCH + V_SYNC;
 
 // Internal counters
 reg [$clog2(H_TOTAL)-1:0] h_counter;
@@ -32,11 +38,11 @@ wire h_last = (h_counter == H_TOTAL - 1);
 wire v_last = (v_counter == V_TOTAL - 1);
 
 // Active low sync pulse generation
-assign hsync_o = ~((h_counter >= (H_ACTIVE + H_F_PORCH)) &
-                   (h_counter <  (H_ACTIVE + H_F_PORCH + H_SYNC)));
+assign hsync_o = ~((h_counter >= H_SYNC_START) &
+                   (h_counter <  H_SYNC_END));
 
-assign vsync_o = ~((v_counter >= (V_ACTIVE + V_F_PORCH)) &
-                   (v_counter <  (V_ACTIVE + V_F_PORCH + V_SYNC)));
+assign vsync_o = ~((v_counter >= V_SYNC_START) &
+                   (v_counter <  V_SYNC_END));
 
 // Visible screen area detection (disabled during reset)
 wire video_active = (h_counter < H_ACTIVE) & (v_counter < V_ACTIVE) & rst_ni;
