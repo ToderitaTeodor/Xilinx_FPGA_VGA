@@ -37,13 +37,13 @@ assign hsync_o = ~((h_counter >= (H_ACTIVE + H_F_PORCH)) &
 assign vsync_o = ~((v_counter >= (V_ACTIVE + V_F_PORCH)) &
                    (v_counter <  (V_ACTIVE + V_F_PORCH + V_SYNC)));
 
-// Visible screen area detection
-wire video_active = (h_counter < H_ACTIVE) & (v_counter < V_ACTIVE);
+// Visible screen area detection (disabled during reset)
+wire video_active = (h_counter < H_ACTIVE) & (v_counter < V_ACTIVE) & rst_ni;
 
 // Color output logic
-assign red_o = (!rst_ni) ? 4'h0 : ((video_active) ? 4'hF : 4'h0);
-assign green_o = 4'h0;
-assign blue_o = 4'h0;
+assign red_o   = (video_active) ? 4'hF : 4'h0;
+assign green_o = (video_active) ? 4'h0 : 4'h0;
+assign blue_o  = (video_active) ? 4'h0 : 4'h0;
 
 // Horizontal counter logic
 always @(posedge clk_i or negedge rst_ni) begin
