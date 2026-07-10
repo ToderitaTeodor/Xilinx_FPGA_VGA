@@ -1,20 +1,5 @@
 # VGA pe FPGA Xilinx Artix-7
 
-## Cuprins
-- [VGA pe FPGA Xilinx Artix-7](#vga-pe-fpga-xilinx-artix-7)
-  - [Cuprins](#cuprins)
-  - [Istoric Revizii](#istoric-revizii)
-  - [Obiectivele Proiectului:](#obiectivele-proiectului)
-    - [Obiectivul General al Proiectului](#obiectivul-general-al-proiectului)
-    - [Obiective Personale](#obiective-personale)
-  - [Etapele Proiectului:](#etapele-proiectului)
-    - [Etapa 0: Specificațiile Proiectului](#etapa-0-specificațiile-proiectului)
-    - [Etapa 1: Proiectarea și Simularea Controllerului VGA (640x480)](#etapa-1-proiectarea-și-simularea-controllerului-vga-640x480)
-    - [Etapa 2: Validarea Hardware și Generarea de Modele Statice](#etapa-2-validarea-hardware-și-generarea-de-modele-statice)
-    - [Etapa 3: Animarea Obiectelor (Efectul „DVD Screensaver”)](#etapa-3-animarea-obiectelor-efectul-dvd-screensaver)
-    - [Etapa 4: Scalarea Rezoluției (Full HD - 1920x1080)](#etapa-4-scalarea-rezoluției-full-hd---1920x1080)
-    - [Etapa 5: Integrarea Senzorilor](#etapa-5-integrarea-senzorilor)
-
 ---
 
 ## Istoric Revizii
@@ -25,6 +10,21 @@
 | 0.2 | Iulie 10, 2026 | Teodor Toderiță | Validare pe placă & animație |
 
 ---
+
+## Cuprins
+- [VGA pe FPGA Xilinx Artix-7](#vga-pe-fpga-xilinx-artix-7)
+  - [Istoric Revizii](#istoric-revizii)
+  - [Cuprins](#cuprins)
+  - [Obiectivele Proiectului:](#obiectivele-proiectului)
+    - [Obiectivul General al Proiectului](#obiectivul-general-al-proiectului)
+    - [Obiective Personale](#obiective-personale)
+  - [Etapele Proiectului:](#etapele-proiectului)
+    - [Etapa 0: Specificațiile Proiectului](#etapa-0-specificațiile-proiectului)
+    - [Etapa 1: Proiectarea și Simularea Controllerului VGA (640x480)](#etapa-1-proiectarea-și-simularea-controllerului-vga-640x480)
+    - [Etapa 2: Validarea Hardware și Generarea de Modele Statice](#etapa-2-validarea-hardware-și-generarea-de-modele-statice)
+    - [Etapa 3: Animarea Obiectelor (Efectul „DVD Screensaver”)](#etapa-3-animarea-obiectelor-efectul-dvd-screensaver)
+    - [Etapa 4: Scalarea Rezoluției (Full HD - 1920x1080)](#etapa-4-scalarea-rezoluției-full-hd---1920x1080)
+    - [Etapa 5: Integrarea Senzorilor](#etapa-5-integrarea-senzorilor)
 
 ## Obiectivele Proiectului:
 
@@ -47,13 +47,13 @@ Obiectivul acestui proiect este proiectarea și implementarea unui controller VG
 
 ### Etapa 1: Proiectarea și Simularea Controllerului VGA (640x480)
 * **Obiectivul etapei**: Scrierea codului pentru semnalele de sincronizare VGA (`HSYNC`, `VSYNC`) și validarea diagramelor de timp folosinf Vivado Simulator.
-* **Realizarea etapei**: Am implementat logica de control și am validat semnalele în simulator printr-un testbench, obținând diagramele de timp corecte.
+* **Realizarea etapei**: Am proiectat logica de control prin implementarea a două numărătoare independente pentru axa orizontală și cea verticală. Pe baza acestora, am generat semnalele `hsync_o` și `vsync_o` respectând timpii din documentația standardului VGA (Active Video, Front Porch, Sync Pulse, Back Porch). Ulterior, am validat funcționalitatea în simulator printr-un testbench, obținând diagramele de timp corecte.
 * **Dificultăți întâmpinate**: Inițial, un test a eșuat deoarece culorile nu erau resetate la pornirea sistemului, rămânând cu valori nedefinite.
 * **Mod de rezolvare**: Am corectat problema adăugând inițializarea culorilor pe valoarea `0` în blocul de reset.
 
 ### Etapa 2: Validarea Hardware și Generarea de Modele Statice
 * **Obiectivul etapei**: Configurarea fișierului de constrângeri (`.xdc`) pentru pinii VGA ai plăcii de dezvoltare Basys 3 și afișarea unor modele statice de test (bare de culori) pe un monitor.
-* **Realizarea etapei**: Am mapat pinii pentru semnalele de sincronizare și culori în fișierul `.xdc` și am generat pe ecran un model static de test.
+* **Realizarea etapei**: Am realizat un Block Design în Vivado și am integrat IP-ul Clocking Wizard pentru a genera un ceas stabil la frecvența de 25.175 MHz. Arhitectura este modulară, ceea ce permite modificarea frecvenței de ceas în orice moment pentru alte rezoluții. În final, am mapat pinii pentru semnalele de sincronizare și culori în fișierul `.xdc`, reușind să afișez pe ecran modelul static de test.
 * **Dificultăți întâmpinate**: La primul test pe placă, ecranul nu reacționa la apăsarea butonului de reset din cauză că acesta nu fusese mapat corect în fișierul de constrângeri.
 * **Mod de rezolvare**: Am corectat maparea pinului corespunzător butonului de reset în fișierul `.xdc`, asigurând inițializarea corectă a controllerului VGA direct din hardware.
   
