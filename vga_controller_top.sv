@@ -23,7 +23,10 @@ module vga_controller_top #(
 
 // 25.175 Mhz clock
 logic vga_clk;
+
+// reset active low
 logic rst_n = ~reset;
+
 
 vga_controller #(
     .H_ACTIVE (H_ACTIVE ),

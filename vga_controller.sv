@@ -11,7 +11,7 @@ module vga_controller #(
 )(    
     input              clk_i  ,
     input              rst_ni ,
-    input logic [2:0]  sw     ,
+    input logic [1:0]  sw     ,
 
     output logic       hsync_o,
     output logic       vsync_o,
@@ -21,25 +21,29 @@ module vga_controller #(
     output logic [3:0] blue_o 
 );
 
+// Signals for bounce logic
+logic [9:0] obj_x;              // object x coordinates
+logic [9:0] obj_y;              // object y coordinates
+
+logic       dir_x;              // moving direction on x
+logic       dir_y;              // moving direction on y           
+
+// Object size
 localparam SQUARE_SIZE = 50;
 
+// 
 localparam H_TOTAL    = H_ACTIVE + H_F_PORCH + H_SYNC + H_B_PORCH;
 localparam V_TOTAL    = V_ACTIVE + V_F_PORCH + V_SYNC + V_B_PORCH;
+
+// Internal counters
+reg [$clog2(H_TOTAL)-1:0] h_counter;
+reg [$clog2(V_TOTAL)-1:0] v_counter;
 
 localparam H_SYNC_START = H_ACTIVE + H_F_PORCH;
 localparam H_SYNC_END   = H_ACTIVE + H_F_PORCH + H_SYNC;
 
 localparam V_SYNC_START = V_ACTIVE + V_F_PORCH;
 localparam V_SYNC_END   = V_ACTIVE + V_F_PORCH + V_SYNC;
-
-logic [9:0] obj_x;
-logic [9:0] obj_y;
-logic       dir_x;
-logic       dir_y;
-
-// Internal counters
-reg [$clog2(H_TOTAL)-1:0] h_counter;
-reg [$clog2(V_TOTAL)-1:0] v_counter;
 
 // Change animation speed
 logic [1:0] speed_step = (sw[0]) ? 3 : 1;
@@ -49,8 +53,8 @@ logic is_square = (h_counter >= obj_x - SQUARE_SIZE & h_counter < obj_x + SQUARE
                   v_counter >= obj_y - SQUARE_SIZE & v_counter < obj_y + SQUARE_SIZE);
 
 // End of line indicator
-wire h_last = (h_counter == H_TOTAL - 1);
-wire v_last = (v_counter == V_TOTAL - 1);
+logic h_last = (h_counter == H_TOTAL - 1);
+logic v_last = (v_counter == V_TOTAL - 1);
 
 // Active low sync pulse generation
 assign hsync_o = ~((h_counter >= H_SYNC_START) &
@@ -60,7 +64,7 @@ assign vsync_o = ~((v_counter >= V_SYNC_START) &
                    (v_counter <  V_SYNC_END));
 
 // Visible screen area detection (disabled during reset)
-wire video_active = (h_counter < H_ACTIVE) & (v_counter < V_ACTIVE) & rst_ni;
+logic video_active = (h_counter < H_ACTIVE) & (v_counter < V_ACTIVE) & rst_ni;
 
 // Color output logic
 assign red_o   = (video_active) ? (is_square ? (sw[1] ? 4'h0 : 4'hF) : 4'hF) : 4'h0;
@@ -119,7 +123,6 @@ if(!rst_ni)                                      dir_y <= 0; else
 if(obj_y + SQUARE_SIZE + speed_step >= V_ACTIVE) dir_y <= 1; else
 if(obj_y <= SQUARE_SIZE + speed_step)            dir_y <= 0;
 end
-
 
 // Horizontal counter logic
 always_ff @(posedge clk_i or negedge rst_ni) begin
