@@ -67,12 +67,6 @@ assign vsync_o = ~((v_counter >= V_SYNC_START) &
 logic video_active = (h_counter < H_ACTIVE) & (v_counter < V_ACTIVE) & rst_ni;
 
 // Color output logic
-assign red_o   = (video_active) ? (is_square ? (sw[1] ? 4'h0 : 4'hF) : 4'hF) : 4'h0;
-assign green_o = (video_active) ? (is_square ? 4'hF : 4'h0) : 4'h0;
-assign blue_o  = (video_active) ? (is_square ? (sw[1] ? 4'hF : 4'h0) : 4'h0) : 4'h0;
-
-/*
-// Color output logic
 always_comb begin
     red_o   = 4'h0;
     green_o = 4'h0;
@@ -96,7 +90,6 @@ always_comb begin
         end
     end
 end
-*/
 
 // Object X position logic
 always_ff @(posedge clk_i or negedge rst_ni) begin
