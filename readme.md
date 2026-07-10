@@ -6,15 +6,13 @@
 
 | Revizie | Data | Autor | Descriere |
 | :--- | :--- | :--- | :--- |
-| 0.1 | Iulie 6, 2026 | Teodor Toderiță | Proiectare & simulare VGA |
-| 0.2 | Iulie 10, 2026 | Teodor Toderiță | Validare pe placă & animație |
+| 0.1 | Iulie 6, 2026 | Teodor Toderiță | First draft|
+| 0.2 | Iulie 10, 2026 | Teodor Toderiță | Am implementat etapele 1, 2 și 3. Am documentat progesul |
 
 ---
 
-## Cuprins
 - [VGA pe FPGA Xilinx Artix-7](#vga-pe-fpga-xilinx-artix-7)
   - [Istoric Revizii](#istoric-revizii)
-  - [Cuprins](#cuprins)
   - [Obiectivele Proiectului:](#obiectivele-proiectului)
     - [Obiectivul General al Proiectului](#obiectivul-general-al-proiectului)
     - [Obiective Personale](#obiective-personale)
