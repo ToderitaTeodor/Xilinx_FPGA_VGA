@@ -39,7 +39,7 @@ Obiectivul acestui proiect este proiectarea și implementarea unui controller VG
 
 ---
 
-## <u>Etapele Proiectului</u>:
+## Etapele Proiectului:
 
 ### Etapa 0: Specificațiile Proiectului
 * **Obiectivul etapei**: Crearea documentației inițiale a proiectului (README), planificarea etapelor de dezvoltare și studierea fișelor tehnice (datasheets) pentru parametrii de timing ai standardului VGA.
