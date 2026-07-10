@@ -25,13 +25,12 @@ module vga_controller #(
 logic [9:0] obj_x;              // object x coordinates
 logic [9:0] obj_y;              // object y coordinates
 
-logic       dir_x;              // moving direction on x
-logic       dir_y;              // moving direction on y           
+logic       dir_x;              // moving direction on x (0 - right, 1 - left)
+logic       dir_y;              // moving direction on y (0 - down, 1 - up)         
 
-// Object size
-localparam SQUARE_SIZE = 50;
+// Object half size
+localparam SQUARE_HALF_SIZE = 50;
 
-// 
 localparam H_TOTAL    = H_ACTIVE + H_F_PORCH + H_SYNC + H_B_PORCH;
 localparam V_TOTAL    = V_ACTIVE + V_F_PORCH + V_SYNC + V_B_PORCH;
 
@@ -48,20 +47,21 @@ localparam V_SYNC_END   = V_ACTIVE + V_F_PORCH + V_SYNC;
 // Change animation speed
 logic [1:0] speed_step = (sw[0]) ? 3 : 1;
 
-// Draw a square 
-logic is_square = (h_counter >= obj_x - SQUARE_SIZE & h_counter < obj_x + SQUARE_SIZE & 
-                  v_counter >= obj_y - SQUARE_SIZE & v_counter < obj_y + SQUARE_SIZE);
+// Generates the horizontal synchronization pulse required to signal the end of a line scan.
+assign hsync_o = ~((h_counter >= H_SYNC_START) &
+                   (h_counter <  H_SYNC_END));
+
+// Generates the vertical synchronization pulse required to signal the end of a frame scan.
+assign vsync_o = ~((v_counter >= V_SYNC_START) &
+                   (v_counter <  V_SYNC_END));
+
+// Bounding box condition to determine if the current beam coordinates fall within the square area.
+logic is_square = (h_counter >= obj_x - SQUARE_HALF_SIZE & h_counter < obj_x + SQUARE_HALF_SIZE & 
+                  v_counter >= obj_y - SQUARE_HALF_SIZE & v_counter < obj_y + SQUARE_HALF_SIZE);
 
 // End of line indicator
 logic h_last = (h_counter == H_TOTAL - 1);
 logic v_last = (v_counter == V_TOTAL - 1);
-
-// Active low sync pulse generation
-assign hsync_o = ~((h_counter >= H_SYNC_START) &
-                   (h_counter <  H_SYNC_END));
-
-assign vsync_o = ~((v_counter >= V_SYNC_START) &
-                   (v_counter <  V_SYNC_END));
 
 // Visible screen area detection (disabled during reset)
 logic video_active = (h_counter < H_ACTIVE) & (v_counter < V_ACTIVE) & rst_ni;
@@ -106,15 +106,15 @@ end
 // X direction bounce logic
 always_ff @(posedge clk_i or negedge rst_ni) begin
 if(!rst_ni)                                      dir_x <= 0; else
-if(obj_x + SQUARE_SIZE + speed_step >= H_ACTIVE) dir_x <= 1; else
-if(obj_x <= SQUARE_SIZE + speed_step)            dir_x <= 0;
+if(obj_x + SQUARE_HALF_SIZE + speed_step >= H_ACTIVE) dir_x <= 1; else
+if(obj_x <= SQUARE_HALF_SIZE + speed_step)            dir_x <= 0;
 end
 
 // Y direction bounce logic 
 always_ff @(posedge clk_i or negedge rst_ni) begin
 if(!rst_ni)                                      dir_y <= 0; else
-if(obj_y + SQUARE_SIZE + speed_step >= V_ACTIVE) dir_y <= 1; else
-if(obj_y <= SQUARE_SIZE + speed_step)            dir_y <= 0;
+if(obj_y + SQUARE_HALF_SIZE + speed_step >= V_ACTIVE) dir_y <= 1; else
+if(obj_y <= SQUARE_HALF_SIZE + speed_step)            dir_y <= 0;
 end
 
 // Horizontal counter logic
