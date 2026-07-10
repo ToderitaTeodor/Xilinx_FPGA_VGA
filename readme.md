@@ -1,5 +1,5 @@
 # VGA pe FPGA Xilinx Artix-7
-
+## Autor: Toderiță Teodor
 ---
 
 ## Istoric Revizii
@@ -12,6 +12,7 @@
 ---
 
 - [VGA pe FPGA Xilinx Artix-7](#vga-pe-fpga-xilinx-artix-7)
+  - [Autor: Toderiță Teodor](#autor-toderiță-teodor)
   - [Istoric Revizii](#istoric-revizii)
   - [Obiectivele Proiectului:](#obiectivele-proiectului)
     - [Obiectivul General al Proiectului](#obiectivul-general-al-proiectului)
