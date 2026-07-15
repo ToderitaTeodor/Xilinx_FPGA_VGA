@@ -1,21 +1,21 @@
 module vga_image_display #(
-    parameter H_ACTIVE  = 640,
-    parameter H_F_PORCH = 16 ,
-    parameter H_SYNC    = 96 ,
-    parameter H_B_PORCH = 48 ,
+    parameter H_ACTIVE  = 1920,
+    parameter H_F_PORCH = 88 ,
+    parameter H_SYNC    = 44 ,
+    parameter H_B_PORCH = 148 ,
 
-    parameter V_ACTIVE  = 480,
-    parameter V_F_PORCH = 10 ,
-    parameter V_SYNC    = 2  ,
-    parameter V_B_PORCH = 33 
+    parameter V_ACTIVE  = 1080,
+    parameter V_F_PORCH = 4 ,
+    parameter V_SYNC    = 5  ,
+    parameter V_B_PORCH = 36
 )(    
     input              clk_i  ,
     input              rst_ni ,
 
     input logic [1:0]  sw     ,
 
-    input logic [9:0]  h_counter,
-    input logic [9:0]  v_counter,
+    input logic [11:0]  h_counter,
+    input logic [11:0]  v_counter,
     input logic        video_active,
 
     output logic [3:0] red_o  ,
@@ -31,8 +31,8 @@ logic h_last = (h_counter == H_TOTAL - 1);
 logic v_last = (v_counter == V_TOTAL - 1);
 
 // Signals for bounce logic
-logic [9:0] obj_x;              // object x coordinates
-logic [9:0] obj_y;              // object y coordinates
+logic [11:0] obj_x;              // object x coordinates
+logic [11:0] obj_y;              // object y coordinates
 
 logic       dir_x;              // moving direction on x (0 - right, 1 - left)
 logic       dir_y;              // moving direction on y (0 - down, 1 - up)         
