@@ -8,6 +8,7 @@
 | :--- | :--- | :--- | :--- |
 | 0.1 | Iulie 6, 2026 | Teodor Toderiță | First draft|
 | 0.2 | Iulie 10, 2026 | Teodor Toderiță | Am implementat etapele 1, 2 și 3. Am documentat progesul |
+| 0.3 | Iulie 15, 2026 | Teodor Toderiță | Am scalat rezoluția la 1920x180 @60Hz |
 
 ---
 
@@ -63,7 +64,11 @@ Obiectivul acestui proiect este proiectarea și implementarea unui controller VG
 * **Mod de rezolvare**: Am inclus variabila `speed_step` direct în ecuațiile care verifică coliziunea cu marginile active, forțând schimbarea direcției (`dir_x`, `dir_y`) înainte ca obiectul să iasă din zona vizibilă.
     
 ### Etapa 4: Scalarea Rezoluției (Full HD - 1920x1080)
-* **Obiectivul etapei**: Recalcularea parametrilor de timing pentru VGA și scalarea ceasului de pixeli (Pixel Clock) pentru a suporta rezoluția Full HD.
-  
+
+* **Obiectivul etapei**: Recalcularea parametrilor de sincronizare (timing) pentru VGA și scalarea ceasului de pixeli pentru a suporta rezoluția Full HD.
+* **Realizarea etapei**: Am calculat frecvența necesară pentru a suporta rezoluția de 1920x1080 la 60Hz, care este de 148.5 MHz. Am configurat IP-ul Clocking Wizard pentru a genera acest ceas stabil (pornind de la ceasul fizic de 100 MHz al plăcii Basys 3) și am actualizat în cod parametrii de sincronizare (orizontală și verticală) conform standardului.
+* **Dificultăți întâmpinate**: După aplicarea acestor modificări, ecranul monitorului nu afișa nimic sau arăta o eroare legată de frecvențele nesuportate.
+* **Mod de rezolvare**: În codul inițial, numărătoarele de pixeli erau definite pe 10 biți. Însă pentru Full HD, numărul total de pixeli ajunge la 2200 pe orizontală și 1125 pe verticală. Am rezolvat această problemă prin extinderea porturilor și a registrelor la 12 biți.
+   
 ### Etapa 5: Integrarea Senzorilor
 * **Obiectivul etapei**: Interfațarea unui senzor ultrasonic pentru controlul interactiv al elementelor grafice afișate.
