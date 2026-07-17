@@ -14,6 +14,8 @@ module vga_controller #(
 
     output logic       hsync_o,
     output logic       vsync_o,
+    
+    output logic       frame_tick_o,
 
     output logic [11:0] h_count_o,
     output logic [11:0] v_count_o,
@@ -58,5 +60,7 @@ end
 
 // Visible screen area detection (disabled during reset)
 assign video_active_o = (h_count_o < H_ACTIVE) & (v_count_o < V_ACTIVE) & rst_ni;
+
+assign frame_tick_o = v_last && h_last;
 
 endmodule
