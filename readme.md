@@ -25,6 +25,7 @@
     - [Etapa 3: Animarea Obiectelor (Efectul „DVD Screensaver”)](#etapa-3-animarea-obiectelor-efectul-dvd-screensaver)
     - [Etapa 4: Scalarea Rezoluției (Full HD - 1920x1080)](#etapa-4-scalarea-rezoluției-full-hd---1920x1080)
     - [Etapa 5: Integrarea Senzorului Ultrasonic](#etapa-5-integrarea-senzorului-ultrasonic)
+    - [Etapa 6: Maparea Datelor și Randarea Grafică pe Ecran](#etapa-6-maparea-datelor-și-randarea-grafică-pe-ecran)
 
 ## Obiectivele Proiectului:
 
@@ -75,3 +76,8 @@ Obiectivul acestui proiect este proiectarea și implementarea unui controller VG
 * **Realizarea etapei**: Conectarea fizică a senzorului s-a realizat prin portul PMOD JA al plăcii Basys 3, configurând pinii asociați în fișierul de constrângeri (`.xdc`). Ulterior, am dezvoltat modulul de citire în SystemVerilog pentru achiziția și decodificarea semnalului generat de senzor.
 * **Dificultăți întâmpinate**: În faza inițială de testare, senzorul nu transmitea niciun fel de date către placă (semnalul de intrare rămânea inactiv).
 * **Mod de rezolvare**: În urma analizării documentației tehnice a senzorului, am identificat că cipul intern folosește comunicația UART, iar pentru a iniția citirea continuă și transmisia de impulsuri, pinul RX de pe senzor trebuie menținut în nivel logic 1 (HIGH). Forțarea acestui pin în starea HIGH a rezolvat problema, pornind emisia corectă a măsurătorilor.
+### Etapa 6: Maparea Datelor și Randarea Grafică pe Ecran
+* **Obiectivul etapei**: Traducerea distanței fizice măsurate de senzor în parametri vizuali dinamici și desenarea pe ecran.
+* **Realizarea etapei**: Am dezvoltat modulul `distance_mapper` în SystemVerilog pentru a converti valoarea pe 10 biți a distanței într-un indicator de proximitate pe 8 biți (`level`, între 0 și 255). Pe baza acestui nivel, am calculat raza dinamică a cercului (`radius_o` pe 9 biți) și am clasificat distanța în 5 praguri de căldură distincte. În paralel, am actualizat modulul `vga_image_display` care scanează ecranul pixel cu pixel și decide culoarea adecvată pe baza coordonatelor active `h_counter` și `v_counter`. Efectul de gradient termic a fost obținut prin suprapunerea a 5 discuri pline colorate diferit, de la centru spre exterior, folosind o structură decizională de tip `if-else if`.
+* **Dificultăți întâmpinate**: Calculul distanței exacte în linie dreaptă de la pixelul curent la centrul ecranului necesită o operație de radical. Implementarea unui radical în logica combinațională a FPGA-ului este extrem de complexă, folosește un volum uriaș de resurse fizice și introduce întârzieri mari în propagarea semnalului.
+* **Mod de rezolvare**: Am eliminat complet operația de radical prin ridicarea la pătrat a ambelor părți ale inegalității geometrice a cercului. Astfel, în loc să comparăm distanța liniară cu raza, am comparat distanța la pătrat cu raza la pătrat.
