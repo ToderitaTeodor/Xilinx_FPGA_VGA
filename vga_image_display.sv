@@ -14,6 +14,9 @@ module vga_image_display #(
 
     input logic [1:0]  sw     ,
 
+    input logic [7:0] square_size_i,
+    input logic [3:0] brightness_i,
+
     input logic [11:0]  h_counter,
     input logic [11:0]  v_counter,
     input logic        video_active,
@@ -38,14 +41,18 @@ logic       dir_x;              // moving direction on x (0 - right, 1 - left)
 logic       dir_y;              // moving direction on y (0 - down, 1 - up)         
 
 // Object half size
-localparam SQUARE_HALF_SIZE = 50;
+
+logic [7:0] square_half_size;
+assign square_half_size = square_size_i >> 1;
 
 // Change animation speed
 logic [1:0] speed_step = (sw[0]) ? 3 : 1;
 
 // Bounding box condition to determine if the current beam coordinates fall within the square area.
-logic is_square = ((h_counter >= (obj_x - SQUARE_HALF_SIZE)) & (h_counter < (obj_x + SQUARE_HALF_SIZE)) & 
-                  (v_counter >= (obj_y - SQUARE_HALF_SIZE)) & (v_counter < (obj_y + SQUARE_HALF_SIZE)));
+logic is_square = ((h_counter >= (obj_x - square_half_size)) & 
+                   (h_counter <  (obj_x + square_half_size)) & 
+                   (v_counter >= (obj_y - square_half_size)) & 
+                   (v_counter <  (obj_y + square_half_size)));
 
 // Color output logic
 always_comb begin
@@ -56,17 +63,17 @@ always_comb begin
         if (is_square) begin
             if (sw[1]) begin
                 red_o   = 4'h0;
-                green_o = 4'hF;
-                blue_o  = 4'hF;
+                green_o = brightness_i;
+                blue_o  = brightness_i;
             end else begin
-                red_o   = 4'hF;
-                green_o = 4'hF;
+                red_o   = brightness_i;
+                green_o = brightness_i;
                 blue_o  = 4'h0;
             end
         end else begin
             red_o   = 4'hF;
-            green_o = 4'h0;
-            blue_o  = 4'h0;
+            green_o = 4'hF;
+            blue_o  = 4'hF;
         end
     end
 end
