@@ -24,7 +24,7 @@
     - [Etapa 2: Validarea Hardware și Generarea de Modele Statice](#etapa-2-validarea-hardware-și-generarea-de-modele-statice)
     - [Etapa 3: Animarea Obiectelor (Efectul „DVD Screensaver”)](#etapa-3-animarea-obiectelor-efectul-dvd-screensaver)
     - [Etapa 4: Scalarea Rezoluției (Full HD - 1920x1080)](#etapa-4-scalarea-rezoluției-full-hd---1920x1080)
-    - [Etapa 5: Integrarea Senzorilor](#etapa-5-integrarea-senzorilor)
+    - [Etapa 5: Integrarea Senzorului Ultrasonic](#etapa-5-integrarea-senzorului-ultrasonic)
 
 ## Obiectivele Proiectului:
 
@@ -70,5 +70,8 @@ Obiectivul acestui proiect este proiectarea și implementarea unui controller VG
 * **Dificultăți întâmpinate**: După aplicarea acestor modificări, ecranul monitorului nu afișa nimic sau arăta o eroare legată de frecvențele nesuportate.
 * **Mod de rezolvare**: În codul inițial, numărătoarele de pixeli erau definite pe 10 biți. Însă pentru Full HD, numărul total de pixeli ajunge la 2200 pe orizontală și 1125 pe verticală. Am rezolvat această problemă prin extinderea porturilor și a registrelor la 12 biți.
    
-### Etapa 5: Integrarea Senzorilor
-* **Obiectivul etapei**: Interfațarea unui senzor ultrasonic pentru controlul interactiv al elementelor grafice afișate.
+### Etapa 5: Integrarea Senzorului Ultrasonic
+* **Obiectivul etapei**: Interfațarea unui senzor ultrasonic pentru controlul interactiv și dinamic al elementelor grafice afișate pe ecran.
+* **Realizarea etapei**: Conectarea fizică a senzorului s-a realizat prin portul PMOD JA al plăcii Basys 3, configurând pinii asociați în fișierul de constrângeri (`.xdc`). Ulterior, am dezvoltat modulul de citire în SystemVerilog pentru achiziția și decodificarea semnalului generat de senzor.
+* **Dificultăți întâmpinate**: În faza inițială de testare, senzorul nu transmitea niciun fel de date către placă (semnalul de intrare rămânea inactiv).
+* **Mod de rezolvare**: În urma analizării documentației tehnice a senzorului, am identificat că cipul intern folosește comunicația UART, iar pentru a iniția citirea continuă și transmisia de impulsuri, pinul RX de pe senzor trebuie menținut în nivel logic 1 (HIGH). Forțarea acestui pin în starea HIGH a rezolvat problema, pornind emisia corectă a măsurătorilor.
