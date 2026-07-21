@@ -35,9 +35,12 @@ logic [11:0] w_v_counter;
 logic       w_video_active;
 
 logic [9:0] distance_cm;
+logic [9:0] filtered_distance;
 
 logic [8:0] radius;
 logic [2:0] heat_level;
+
+logic valid;
 
 assign sonar_rx_o = 1'b1;
 
@@ -93,7 +96,8 @@ maxsonar_reader #(
     .clk_i (sys_clock),
     .rst_ni(rst_n),
     .pw_i (sonar_pw_i),
-    .distance_cm_o(distance_cm)
+    .distance_cm_o(distance_cm),
+    .valid_o(valid)
 );
 
 distance_mapper #(
@@ -105,11 +109,21 @@ distance_mapper #(
 
 ) distance_mapper_inst (
 
-    .distance_cm_i(distance_cm),
+    .distance_cm_i(filtered_distance),
 
     .radius_o(radius),
     .heat_level_o(heat_level)
 
+);
+
+
+distance_filter distance_filter_inst(
+    .clk_i         (sys_clock),
+    .rst_ni        (rst_n),
+    .sample_valid_i(valid), 
+    .raw_dist_i    (distance_cm),     
+
+    .filtered_dist_o(filtered_distance)
 );
 
 clk_vga_wrapper clk_vga_wrapper_inst(

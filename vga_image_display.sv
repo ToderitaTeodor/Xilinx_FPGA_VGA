@@ -1,107 +1,94 @@
 module vga_image_display #(
-    parameter H_ACTIVE  = 1920,
-    parameter H_F_PORCH = 88 ,
-    parameter H_SYNC    = 44 ,
-    parameter H_B_PORCH = 148 ,
+    parameter H_ACTIVE = 1920,
+    parameter V_ACTIVE = 1080
+)(
+    input  logic        clk_i,
+    input  logic        rst_ni,
 
-    parameter V_ACTIVE  = 1080,
-    parameter V_F_PORCH = 4 ,
-    parameter V_SYNC    = 5  ,
-    parameter V_B_PORCH = 36
-)(    
-    input              clk_i  ,
-    input              rst_ni ,
+    input  logic [1:0]  sw,
 
-    input logic [1:0]  sw     ,
+    input  logic [8:0]  radius_i,      // Current circle radius
+    input  logic [2:0]  heat_level_i,  // Current "heat level"
 
-    input logic [7:0] square_size_i,
-    input logic [3:0] brightness_i,
+    input  logic [11:0] h_counter,     // Current horizontal pixel coordinate
+    input  logic [11:0] v_counter,     // Current vertical pixel coordinate
 
-    input logic [11:0]  h_counter,
-    input logic [11:0]  v_counter,
-    input logic        video_active,
+    input  logic        video_active,  // Active display area signal
 
-    output logic [3:0] red_o  ,
-    output logic [3:0] green_o,
-    output logic [3:0] blue_o 
+    output logic [3:0]  red_o,
+    output logic [3:0]  green_o,
+    output logic [3:0]  blue_o
 );
 
-localparam H_TOTAL = H_ACTIVE + H_F_PORCH + H_SYNC + H_B_PORCH;
-localparam V_TOTAL = V_ACTIVE + V_F_PORCH + V_SYNC + V_B_PORCH;
+    localparam CENTER_X = H_ACTIVE / 2;
+    localparam CENTER_Y = V_ACTIVE / 2;
 
-// End of line indicator calculat intern
-logic h_last = (h_counter == H_TOTAL - 1);
-logic v_last = (v_counter == V_TOTAL - 1);
+    logic [11:0] dx;          
+    logic [11:0] dy;          
+    logic [25:0] distance_sq; 
+    logic [25:0] radius_sq;   
 
-// Signals for bounce logic
-logic [11:0] obj_x;              // object x coordinates
-logic [11:0] obj_y;              // object y coordinates
+    // Calculul geometriei (neschimbat)
+    assign dx = (h_counter >= CENTER_X) ? (h_counter - CENTER_X) : (CENTER_X - h_counter);
+    assign dy = (v_counter >= CENTER_Y) ? (v_counter - CENTER_Y) : (CENTER_Y - v_counter);
 
-logic       dir_x;              // moving direction on x (0 - right, 1 - left)
-logic       dir_y;              // moving direction on y (0 - down, 1 - up)         
+    assign distance_sq = (dx * dx) + (dy * dy);
+    assign radius_sq   = radius_i * radius_i;
+    
+    // Semnale temporare pentru culori
+    logic [3:0] red_next, green_next, blue_next;
 
-// Object half size
+    always_comb begin
+        red_next   = 4'h0;
+        green_next = 4'h0;
+        blue_next  = 4'h0;
 
-logic [7:0] square_half_size;
-assign square_half_size = square_size_i >> 1;
-
-// Change animation speed
-logic [1:0] speed_step = (sw[0]) ? 3 : 1;
-
-// Bounding box condition to determine if the current beam coordinates fall within the square area.
-logic is_square = ((h_counter >= (obj_x - square_half_size)) & 
-                   (h_counter <  (obj_x + square_half_size)) & 
-                   (v_counter >= (obj_y - square_half_size)) & 
-                   (v_counter <  (obj_y + square_half_size)));
-
-// Color output logic
-always_comb begin
-    red_o   = 4'h0;
-    green_o = 4'h0;
-    blue_o  = 4'h0;
-    if (video_active) begin
-        if (is_square) begin
-            if (sw[1]) begin
-                red_o   = 4'h0;
-                green_o = brightness_i;
-                blue_o  = brightness_i;
-            end else begin
-                red_o   = brightness_i;
-                green_o = brightness_i;
-                blue_o  = 4'h0;
+        if (video_active && (radius_i != 9'd0) && (distance_sq <= radius_sq)) begin
+            
+            // Ring 1 
+            if ((distance_sq < radius_sq / 5) && (heat_level_i >= 3'd4)) begin
+                red_next   = 4'hD; 
+                green_next = 4'h1;
+                blue_next  = 4'h1;
             end
-        end else begin
-            red_o   = 4'hF;
-            green_o = 4'hF;
-            blue_o  = 4'hF;
+            // Ring 2 
+            else if ((distance_sq < 2 * radius_sq / 5) && (heat_level_i >= 3'd3)) begin
+                red_next   = 4'hC; 
+                green_next = 4'h4;
+                blue_next  = 4'h1;
+            end
+            // Ring 3
+            else if ((distance_sq < 3 * radius_sq / 5) && (heat_level_i >= 3'd2)) begin
+                red_next   = 4'hC; 
+                green_next = 4'h6;
+                blue_next  = 4'h2;
+            end
+            // Ring 4
+            else if ((distance_sq < 4 * radius_sq / 5) && (heat_level_i >= 3'd1)) begin
+                red_next   = 4'hB; 
+                green_next = 4'h8;
+                blue_next  = 4'h3;
+            end
+            // Ring 5
+            else begin
+                red_next   = 4'hA;
+                green_next = 4'hA;
+                blue_next  = 4'h5;
+            end
+            
         end
     end
-end
 
-// Object X position logic
-always_ff @(posedge clk_i or negedge rst_ni) begin
-if(!rst_ni)          obj_x <= H_ACTIVE / 2; else
-if(h_last && v_last) obj_x <= (!dir_x) ? (obj_x + speed_step) : (obj_x - speed_step);
-end
-
-// Object Y position logic
-always_ff @(posedge clk_i or negedge rst_ni) begin
-if(!rst_ni)          obj_y <= V_ACTIVE / 2; else
-if(h_last && v_last) obj_y <= (!dir_y) ? (obj_y + speed_step) : (obj_y - speed_step);
-end
-
-// X direction bounce logic
-always_ff @(posedge clk_i or negedge rst_ni) begin
-if(!rst_ni)                                             dir_x <= 0; else
-if((obj_x + SQUARE_HALF_SIZE + speed_step) >= H_ACTIVE) dir_x <= 1; else
-if(obj_x <= (SQUARE_HALF_SIZE + speed_step))            dir_x <= 0;
-end
-
-// Y direction bounce logic 
-always_ff @(posedge clk_i or negedge rst_ni) begin
-if(!rst_ni)                                             dir_y <= 0; else
-if((obj_y + SQUARE_HALF_SIZE + speed_step) >= V_ACTIVE) dir_y <= 1; else
-if(obj_y <= (SQUARE_HALF_SIZE + speed_step))            dir_y <= 0;
-end
+    always_ff @(posedge clk_i or negedge rst_ni) begin
+        if (!rst_ni) begin
+            red_o   <= 4'h0;
+            green_o <= 4'h0;
+            blue_o  <= 4'h0;
+        end else begin
+            red_o   <= red_next;
+            green_o <= green_next;
+            blue_o  <= blue_next;
+        end
+    end
 
 endmodule
