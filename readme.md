@@ -13,14 +13,19 @@
 
 ---
 
-## Arhitectura Sistemului (Schemă Bloc)
+## Arhitectura Sistemului
 
+### 1. Interfațarea Hardware
+<p align="center">
+  <img src="doc/hardware_diagram.png" alt="Diagramă Conectică Hardware" width="85%">
+</p>
+
+### 2. Schema Bloc RTL (Vivado)
 <p align="center">
   <img src="doc/schematic_v2.png" alt="Schemă Bloc RTL Vivado" width="90%">
 </p>
 
 ---
-
 - [VGA pe FPGA Xilinx Artix-7](#vga-pe-fpga-xilinx-artix-7)
   - [Autor: Toderiță Teodor](#autor-toderiță-teodor)
   - [Istoric Revizii](#istoric-revizii)
