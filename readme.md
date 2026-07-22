@@ -17,7 +17,7 @@
 
 ### 1. Interfațarea Hardware
 <p align="center">
-  <img src="doc/hardware_diagram.png" alt="Diagramă Conectică Hardware" width="85%">
+  <img src="doc/Schema_bloc.png" alt="Conexiune Hardware" width="85%">
 </p>
 
 ### 2. Schema Bloc RTL (Vivado)
