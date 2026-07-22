@@ -15,7 +15,7 @@
 ## Arhitectura Sistemului (Schemă Bloc)
 
 <p align="center">
-  <img src="doc/schematic_readme.png" alt="Schemă Bloc RTL Vivado" width="95%" style="background-color: white; padding: 12px; border-radius: 8px;">
+  <img src="doc/schematic_readme.png" alt="Schemă Bloc RTL Vivado" width="90%">
 </p>
 
 ---
