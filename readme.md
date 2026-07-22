@@ -9,6 +9,7 @@
 | 0.1 | Iulie 6, 2026 | Teodor Toderiță | First draft |
 | 0.2 | Iulie 10, 2026 | Teodor Toderiță | Am implementat etapele 1, 2 și 3. Am documentat progresul |
 | 0.3 | Iulie 15, 2026 | Teodor Toderiță | Am scalat rezoluția la 1920x1080 @60Hz |
+| 0.4 | Iulie 17, 2026 | Teodor Toderiță | Am integrat senzorul ultrasonic MaxSonar pe interfața PMOD |
 
 ---
 
