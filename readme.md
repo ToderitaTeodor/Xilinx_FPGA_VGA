@@ -27,12 +27,15 @@
 </p>
 
 ---
+
+## Cuprins
 - [VGA pe FPGA Xilinx Artix-7](#vga-pe-fpga-xilinx-artix-7)
   - [Autor: Toderiță Teodor](#autor-toderiță-teodor)
   - [Istoric Revizii](#istoric-revizii)
   - [Arhitectura Sistemului](#arhitectura-sistemului)
     - [1. Interfațarea Hardware](#1-interfațarea-hardware)
     - [2. Schema Bloc RTL (Vivado)](#2-schema-bloc-rtl-vivado)
+  - [Cuprins](#cuprins)
   - [Obiectivele Proiectului](#obiectivele-proiectului)
     - [Obiectivul General al Proiectului](#obiectivul-general-al-proiectului)
     - [Obiective Personale](#obiective-personale)
@@ -46,6 +49,8 @@
     - [Etapa 6: Filtrarea și Stabilizarea Semnalului (Moving Average Filter)](#etapa-6-filtrarea-și-stabilizarea-semnalului-moving-average-filter)
     - [Etapa 7: Optimizarea Logicii](#etapa-7-optimizarea-logicii)
   - [Utilizarea Resurselor Hardware (Post-Implementation)](#utilizarea-resurselor-hardware-post-implementation)
+
+---
 
 ## Obiectivele Proiectului
 
@@ -106,7 +111,7 @@ Obiectivul acestui proiect este proiectarea și implementarea unui controller VG
 * **Obiectivul etapei**: Eliminarea căii critice din modulul `distance_mapper` și rezolvarea erorilor de timing, TNS (Total Negative Slack negativ) masiv, generate de operațiile matematice înlănțuite.
 * **Realizarea etapei**: Am refăcut arhitectura modulului `distance_mapper`, trecând de la o logică pur combinațională directă la o structură secvențială ce folosește blocuri `always_ff`. Calculul nivelului, al razei și determinarea pragului de căldură au fost eșalonate și stocate pe registre comandate de ceas.
 * **Dificultăți întâmpinate**: În varianta combinațională inițială, Vivado lega toate operațiile într-un singur lanț lung de porți logice, depășind limita de timp admisă într-un ciclu de ceas și generând o violare gravă de timing.
-* **Mod de rezolvare**: Prin fragmentarea ecuațiilor matematice și salvarea rezultatelor intermediare în bistabile, calea critică s-a scurtat semnificativ.
+* **Mod de rezolvare**: Prin fragmentarea ecuațiilor matematice și salvarea rezultatelor intermediare în bistabile, calea critică s-s scurtat semnificativ.
 
 <p align="center">
   <img src="doc/timing_summary.png" alt="Post-Implementation Timing Summary" width="60%">
@@ -118,6 +123,8 @@ Obiectivul acestui proiect este proiectarea și implementarea unui controller VG
 
 Proiectul a fost sintetizat și implementat pe cipul **Xilinx Artix-7 (xc7a35tcpg236-1)** de pe placa Basys 3. Logica optimizată ocupă un procentaj minim din resursele fizice ale FPGA-ului, lăsând spațiu generos pentru extinderi viitoare:
 
+<div align="center">
+
 | Resursă | Utilizat | Disponibil | Procentaj (%) |
 | :--- | :---: | :---: | :---: |
 | **LUT** (Look-up Tables) | 1203 | 20800 | 5.78% |
@@ -126,3 +133,5 @@ Proiectul a fost sintetizat și implementat pe cipul **Xilinx Artix-7 (xc7a35tcp
 | **IO** (Pini de I/O) | 18 | 106 | 16.98% |
 | **BUFG** (Ceasuri globale) | 2 | 32 | 6.25% |
 | **MMCM** (Clocking Wizard) | 1 | 5 | 20.00% |
+
+</div>
