@@ -1,38 +1,46 @@
 module vga_controller_top #(
-    parameter H_ACTIVE  = 1920,
-    parameter H_F_PORCH = 88 ,
-    parameter H_SYNC    = 44 ,
-    parameter H_B_PORCH = 148 ,
+    parameter H_ACTIVE  = 640,
+    parameter H_F_PORCH = 16 ,
+    parameter H_SYNC    = 96 ,
+    parameter H_B_PORCH = 48 ,
 
-    parameter V_ACTIVE  = 1080,
-    parameter V_F_PORCH = 4 ,
-    parameter V_SYNC    = 5  ,
-    parameter V_B_PORCH = 36
+    parameter V_ACTIVE  = 480,
+    parameter V_F_PORCH = 10 ,
+    parameter V_SYNC    = 2  ,
+    parameter V_B_PORCH = 33 ,
+    
+    parameter CLK_FREQ_MHZ = 25
 )(
     input  logic       sys_clock,
-    input  logic       reset    ,
+    input  logic       reset     ,
 
     input  logic       sonar_pw_i,
     output logic       sonar_rx_o,
 
-    input  logic [1:0] sw       ,
-    output logic       Hsync    ,
-    output logic       Vsync    ,
+    output logic       Hsync     ,
+    output logic       Vsync     ,
 
-    output logic [3:0] vgaRed   ,
-    output logic [3:0] vgaGreen ,
+    output logic [3:0] vgaRed    ,
+    output logic [3:0] vgaGreen  ,
     output logic [3:0] vgaBlue   
 );
 
-// 25.175 Mhz clock
-logic vga_clk;
+localparam MIN_DISTANCE = 10;
+localparam MAX_DISTANCE = 100;
 
-// reset active low
+localparam MIN_RADIUS = 20;
+localparam MAX_RADIUS = 200;
+
+// Pixel clock for the VGA pipeline
+logic clk_25m;
+
+// Active-low reset
 logic rst_n = ~reset;
 
 logic [11:0] w_h_counter;
 logic [11:0] w_v_counter;
-logic       w_video_active;
+logic        w_video_active;
+logic        frame_tick;
 
 logic [9:0] distance_cm;
 logic [9:0] filtered_distance;
@@ -42,8 +50,10 @@ logic [2:0] heat_level;
 
 logic valid;
 
+// Keep the ultrasonic sensor enabled
 assign sonar_rx_o = 1'b1;
 
+// VGA timing generator
 vga_controller #(
     .H_ACTIVE (H_ACTIVE ),
     .H_F_PORCH(H_F_PORCH),
@@ -53,8 +63,8 @@ vga_controller #(
     .V_F_PORCH(V_F_PORCH),
     .V_SYNC   (V_SYNC   ),
     .V_B_PORCH(V_B_PORCH)
-) vga_controller_inst (    
-    .clk_i          (vga_clk),
+) vga_controller_inst (
+    .clk_i          (clk_25m),
     .rst_ni         (rst_n),
     .hsync_o        (Hsync),
     .vsync_o        (Vsync),
@@ -64,17 +74,14 @@ vga_controller #(
     .video_active_o (w_video_active)
 );
 
+// Render the selected scene
 vga_image_display #(
-    .H_ACTIVE(1920),
-    .V_ACTIVE(1080)
-)
+    .H_ACTIVE(H_ACTIVE),
+    .V_ACTIVE(V_ACTIVE)
+) vga_image_display_inst (
 
-vga_image_display_inst (
-
-    .clk_i(vga_clk),
+    .clk_i(clk_25m),
     .rst_ni(rst_n),
-
-    .sw(sw),
 
     .radius_i(radius),
     .heat_level_i(heat_level),
@@ -87,47 +94,45 @@ vga_image_display_inst (
     .red_o(vgaRed),
     .green_o(vgaGreen),
     .blue_o(vgaBlue)
-
 );
 
+// Measure the distance from the ultrasonic sensor
 maxsonar_reader #(
-    .CLK_FREQ_MHZ(100)
+    .CLK_FREQ_MHZ(CLK_FREQ_MHZ)
 ) maxsonar_reader_inst (
-    .clk_i (sys_clock),
-    .rst_ni(rst_n),
-    .pw_i (sonar_pw_i),
-    .distance_cm_o(distance_cm),
-    .valid_o(valid)
-);
-
-distance_mapper #(
-    .MIN_DISTANCE_CM(10),
-    .MAX_DISTANCE_CM(100),
-
-    .MIN_RADIUS(20),
-    .MAX_RADIUS(300)
-
-) distance_mapper_inst (
-
-    .distance_cm_i(filtered_distance),
-
-    .radius_o(radius),
-    .heat_level_o(heat_level)
-
-);
-
-
-distance_filter distance_filter_inst(
-    .clk_i         (sys_clock),
+    .clk_i         (clk_25m),
     .rst_ni        (rst_n),
-    .sample_valid_i(valid), 
-    .raw_dist_i    (distance_cm),     
-
-    .filtered_dist_o(filtered_distance)
+    .pw_i          (sonar_pw_i),
+    .distance_cm_o (distance_cm),
+    .valid_o       (valid)
 );
 
+// Smooth consecutive distance measurements
+distance_filter distance_filter_inst(
+    .clk_i            (clk_25m),
+    .rst_ni           (rst_n),
+    .sample_valid_i   (valid),
+    .raw_dist_i       (distance_cm),
+    .filtered_dist_o  (filtered_distance)
+);
+
+// Convert distance into display parameters
+distance_mapper #(
+    .MIN_DISTANCE_CM(MAX_DISTANCE),
+    .MAX_DISTANCE_CM(MAX_DISTANCE),
+    .MIN_RADIUS(MIN_RADIUS),
+    .MAX_RADIUS(MAX_RADIUS)
+) distance_mapper_inst (
+    .clk_i         (clk_25m),
+    .rst_ni        (rst_n),
+    .distance_cm_i (filtered_distance),
+    .radius_o      (radius),
+    .heat_level_o  (heat_level)
+);
+
+// Generate the VGA pixel clock
 clk_vga_wrapper clk_vga_wrapper_inst(
-    .clk_out1_0(vga_clk),
+    .clk_out1_0(clk_25m),
     .reset     (rst_n),
     .sys_clock (sys_clock)
 );
