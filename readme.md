@@ -44,7 +44,7 @@
     - [Etapa 4: Integrarea Senzorului Ultrasonic](#etapa-4-integrarea-senzorului-ultrasonic)
     - [Etapa 5: Maparea Datelor și Randarea Grafică pe Ecran](#etapa-5-maparea-datelor-și-randarea-grafică-pe-ecran)
     - [Etapa 6: Filtrarea și Stabilizarea Semnalului (Moving Average Filter)](#etapa-6-filtrarea-și-stabilizarea-semnalului-moving-average-filter)
-    - [Etapa 7: Optimizarea Logicii și Închiderea Timing-ului (Pipelining)](#etapa-7-optimizarea-logicii-și-închiderea-timing-ului-pipelining)
+    - [Etapa 7: Optimizarea Logicii](#etapa-7-optimizarea-logicii)
 
 ## Obiectivele Proiectului
 
@@ -101,7 +101,7 @@ Obiectivul acestui proiect este proiectarea și implementarea unui controller VG
 * **Dificultăți întâmpinate**: Din cauza micilor variații de mediu ale undelor ultrasonice, valoarea distanței varia rapid cu ±1 cm, determinând o redimensionare sacadată și un tremur supărător al cercului pe ecran.
 * **Mod de rezolvare**: Implementarea filtrului de medie mobilă a eliminat zgomotul de înaltă frecvență, oferind tranziții line și un aspect vizual extrem de stabil, fără a introduce latență sesizabilă în răspunsul sistemului.
 
-### Etapa 7: Optimizarea Logicii și Închiderea Timing-ului (Pipelining)
+### Etapa 7: Optimizarea Logicii
 * **Obiectivul etapei**: Eliminarea căii critice din modulul `distance_mapper` și rezolvarea erorilor de timing, TNS (Total Negative Slack negativ) masiv, generate de operațiile matematice înlănțuite.
 * **Realizarea etapei**: Am refăcut arhitectura modulului `distance_mapper`, trecând de la o logică pur combinațională directă la o structură secvențială ce folosește blocuri `always_ff`. Calculul nivelului, al razei și determinarea pragului de căldură au fost eșalonate și stocate pe registre comandate de ceas.
 * **Dificultăți întâmpinate**: În varianta combinațională inițială, Vivado lega toate operațiile într-un singur lanț lung de porți logice, depășind limita de timp admisă într-un ciclu de ceas și generând o violare gravă de timing.
