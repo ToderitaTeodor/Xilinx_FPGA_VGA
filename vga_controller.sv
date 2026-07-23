@@ -1,13 +1,13 @@
 module vga_controller #(
-    parameter H_ACTIVE  = 1920,
-    parameter H_F_PORCH = 88 ,
-    parameter H_SYNC    = 44 ,
-    parameter H_B_PORCH = 148 ,
+    parameter H_ACTIVE  = 640,
+    parameter H_F_PORCH = 16 ,
+    parameter H_SYNC    = 96 ,
+    parameter H_B_PORCH = 48 ,
 
-    parameter V_ACTIVE  = 1080,
-    parameter V_F_PORCH = 4 ,
-    parameter V_SYNC    = 5  ,
-    parameter V_B_PORCH = 36 
+    parameter V_ACTIVE  = 480,
+    parameter V_F_PORCH = 10 ,
+    parameter V_SYNC    = 2  ,
+    parameter V_B_PORCH = 33 
 )(    
     input              clk_i,
     input              rst_ni,
