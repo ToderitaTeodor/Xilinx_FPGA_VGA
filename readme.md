@@ -45,6 +45,7 @@
     - [Etapa 5: Maparea Datelor și Randarea Grafică pe Ecran](#etapa-5-maparea-datelor-și-randarea-grafică-pe-ecran)
     - [Etapa 6: Filtrarea și Stabilizarea Semnalului (Moving Average Filter)](#etapa-6-filtrarea-și-stabilizarea-semnalului-moving-average-filter)
     - [Etapa 7: Optimizarea Logicii](#etapa-7-optimizarea-logicii)
+  - [Utilizarea Resurselor Hardware (Post-Implementation)](#utilizarea-resurselor-hardware-post-implementation)
 
 ## Obiectivele Proiectului
 
@@ -106,3 +107,22 @@ Obiectivul acestui proiect este proiectarea și implementarea unui controller VG
 * **Realizarea etapei**: Am refăcut arhitectura modulului `distance_mapper`, trecând de la o logică pur combinațională directă la o structură secvențială ce folosește blocuri `always_ff`. Calculul nivelului, al razei și determinarea pragului de căldură au fost eșalonate și stocate pe registre comandate de ceas.
 * **Dificultăți întâmpinate**: În varianta combinațională inițială, Vivado lega toate operațiile într-un singur lanț lung de porți logice, depășind limita de timp admisă într-un ciclu de ceas și generând o violare gravă de timing.
 * **Mod de rezolvare**: Prin fragmentarea ecuațiilor matematice și salvarea rezultatelor intermediare în bistabile, calea critică s-a scurtat semnificativ.
+
+<p align="center">
+  <img src="doc/timing_summary.png" alt="Post-Implementation Timing Summary" width="60%">
+</p>
+
+---
+
+## Utilizarea Resurselor Hardware (Post-Implementation)
+
+Proiectul a fost sintetizat și implementat pe cipul **Xilinx Artix-7 (xc7a35tcpg236-1)** de pe placa Basys 3. Logica optimizată ocupă un procentaj minim din resursele fizice ale FPGA-ului, lăsând spațiu generos pentru extinderi viitoare:
+
+| Resursă | Utilizat | Disponibil | Procentaj (%) |
+| :--- | :---: | :---: | :---: |
+| **LUT** (Look-up Tables) | 1203 | 20800 | 5.78% |
+| **FF** (Flip-Flops) | 168 | 41600 | 0.40% |
+| **DSP** (Multiplicatoare HW) | 2 | 90 | 2.22% |
+| **IO** (Pini de I/O) | 18 | 106 | 16.98% |
+| **BUFG** (Ceasuri globale) | 2 | 32 | 6.25% |
+| **MMCM** (Clocking Wizard) | 1 | 5 | 20.00% |
