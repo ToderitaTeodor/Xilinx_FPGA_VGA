@@ -7,9 +7,7 @@ module vga_controller_top #(
     parameter V_ACTIVE  = 480,
     parameter V_F_PORCH = 10 ,
     parameter V_SYNC    = 2  ,
-    parameter V_B_PORCH = 33 ,
-    
-    parameter CLK_FREQ_MHZ = 25
+    parameter V_B_PORCH = 33
 )(
     input  logic       sys_clock,
     input  logic       reset     ,
@@ -37,9 +35,9 @@ logic clk_25m;
 // Active-low reset
 logic rst_n = ~reset;
 
-logic [11:0] w_h_counter;
-logic [11:0] w_v_counter;
-logic        w_video_active;
+logic [11:0] h_counter;
+logic [11:0] v_counter;
+logic        video_active;
 logic        frame_tick;
 
 logic [9:0] distance_cm;
@@ -69,9 +67,9 @@ vga_controller #(
     .hsync_o        (Hsync),
     .vsync_o        (Vsync),
     .frame_tick_o   (frame_tick),
-    .h_count_o      (w_h_counter),
-    .v_count_o      (w_v_counter),
-    .video_active_o (w_video_active)
+    .h_count_o      (h_counter),
+    .v_count_o      (v_counter),
+    .video_active_o (video_active)
 );
 
 // Render the selected scene
@@ -86,10 +84,10 @@ vga_image_display #(
     .radius_i(radius),
     .heat_level_i(heat_level),
 
-    .h_counter(w_h_counter),
-    .v_counter(w_v_counter),
+    .h_counter_i(h_counter),
+    .v_counter_i(v_counter),
 
-    .video_active(w_video_active),
+    .video_active_i(video_active),
 
     .red_o(vgaRed),
     .green_o(vgaGreen),
@@ -98,7 +96,7 @@ vga_image_display #(
 
 // Measure the distance from the ultrasonic sensor
 maxsonar_reader #(
-    .CLK_FREQ_MHZ(CLK_FREQ_MHZ)
+    .CLK_FREQ_MHZ(25)
 ) maxsonar_reader_inst (
     .clk_i         (clk_25m),
     .rst_ni        (rst_n),
@@ -118,7 +116,7 @@ distance_filter distance_filter_inst(
 
 // Convert distance into display parameters
 distance_mapper #(
-    .MIN_DISTANCE_CM(MAX_DISTANCE),
+    .MIN_DISTANCE_CM(MIN_DISTANCE),
     .MAX_DISTANCE_CM(MAX_DISTANCE),
     .MIN_RADIUS(MIN_RADIUS),
     .MAX_RADIUS(MAX_RADIUS)

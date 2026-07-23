@@ -4,12 +4,12 @@ module distance_mapper #(
     parameter MIN_RADIUS      = 20 ,
     parameter MAX_RADIUS      = 200
 )(
-    input  logic        clk_i,
-    input  logic        rst_ni,
+    input  logic        clk_i        ,
+    input  logic        rst_ni       ,
     input  logic [9:0]  distance_cm_i,
 
-    output logic [8:0]  radius_o,
-    output logic [2:0]  heat_level_o
+    output logic [8:0]  radius_o     ,
+    output logic [2:0]  heat_level_o 
 );
 
 // Distance interval
