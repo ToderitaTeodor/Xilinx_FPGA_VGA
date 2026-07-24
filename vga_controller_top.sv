@@ -29,7 +29,7 @@ localparam MAX_DISTANCE = 100;
 localparam MIN_RADIUS = 20;
 localparam MAX_RADIUS = 200;
 
-// Pixel clock for the VGA pipeline
+// Pixel clock for the VGA 
 logic clk_25m;
 
 // Active-low reset
