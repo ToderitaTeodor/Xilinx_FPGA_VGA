@@ -121,7 +121,7 @@ Obiectivul acestui proiect este proiectarea și implementarea unui controller VG
 
 ## Utilizarea Resurselor Hardware (Post-Implementation)
 
-Proiectul a fost sintetizat și implementat pe cipul **Xilinx Artix-7 (xc7a35tcpg236-1)** de pe placa Basys 3. Logica optimizată ocupă un procentaj minim din resursele fizice ale FPGA-ului, lăsând spațiu generos pentru extinderi viitoare:
+Proiectul a fost sintetizat și implementat pe cipul **Xilinx Artix-7** de pe placa Basys 3:
 
 <div align="center">
 
